@@ -1,0 +1,47 @@
+{
+    "accept": ".*\\.(xml|XML)",
+    "tags": [{
+        "name": "filename",
+        "type": "filename",
+        "regex": "(?<system>.*)_(?<type>[^_]+)_(?<timestamp>\\d+)\\..+$",
+        "path": "system/type/timestamp",
+        "split": {
+            "timestamp": {
+                "regex": "(?<year>\\d{4})(?<month>\\d{2})(?<day>\\d{2}).*",
+                "path": "year/month/day"
+            }
+        }
+    },{
+        "filter": ".*_SHPSTATUS_.*",
+        "name": "date",
+        "type": "filename",
+        "regex": ".*_[^_]+_(?<timestamp>\\d+)\\..+$",
+        "path": "timestamp",
+        "split": {
+            "timestamp": {
+                "regex": "(?<year>\\d{4})(?<month>\\d{2})(?<day>\\d{2})(?<hour>\\d{2}).*",
+                "path": "year/month/day/hour"
+            }
+        }
+    },{
+        "filter": ".*_SHPSTATUS_.*",
+        "name": "shipmentNo",
+        "type": "xml",
+        "tagNames": "SHIPMENT_NO:shipmentNo",
+        "regex": "(?<shipmentNo>\\d*)",
+        "path": "shipmentNo",
+        "split": {
+            "shipmentNo": {
+                "regex": "(?<num>\\d{1,2})",
+                "path": "num"
+            }
+        }
+    },{
+        "filter": ".*_SHPSTATUS_.*",
+        "name": "branchNo",
+        "type": "xml",
+        "tagNames": "BRANCH_NO:branchNo",
+        "regex": "(?<branchNo>\\d*)",
+        "path": "branchNo"        
+    }]
+}
