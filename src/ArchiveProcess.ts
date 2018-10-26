@@ -10,13 +10,15 @@ export default class ArchiveProcess {
   public storePath: string;
   public archivePath: string;
   public inPath: string;
+  public errorPath: string;
   private acceptRegex: RegExp;
   private watcher: chokidar.FSWatcher;
 
-  constructor(public folderPath: string, private config: ArlinktonConfig) {
-    this.storePath = path.resolve(this.folderPath, "store/");
-    this.archivePath = path.resolve(this.folderPath, "archive/");
-    this.inPath = path.resolve(this.folderPath, "in/");
+  constructor(private config: ArlinktonConfig) {
+    this.storePath = config.paths.store;
+    this.archivePath = config.paths.archive;
+    this.inPath = config.paths.in;
+    this.errorPath = config.paths.error;
     this.acceptRegex = /.*/;
     if (this.config.accept) {
       this.acceptRegex = new RegExp(this.config.accept);
@@ -45,7 +47,7 @@ export default class ArchiveProcess {
 
       if (!this.acceptRegex.test(fileName)) {
         log(`Filename does not match ${fileName}`);
-        destDir = path.resolve(this.folderPath, "err/", relDir);
+        destDir = path.resolve(this.errorPath, relDir);
       } else {
         destDir = path.resolve(this.storePath, relDir);
         success = true;
@@ -89,6 +91,9 @@ export default class ArchiveProcess {
   }
 
   private createWatcher(): chokidar.FSWatcher {
+    if (!fs.existsSync(this.inPath)) {
+      mkdirp.sync(this.inPath);
+    }
     return chokidar.watch(this.inPath, {
       awaitWriteFinish: true,
       ignored: /(^|[\/\\])\../,

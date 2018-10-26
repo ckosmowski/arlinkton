@@ -1,6 +1,15 @@
 export default class ArlinktonConfig {
   public accept: string;
   public tags: [Tag];
+  public paths: Paths;
+}
+
+class Paths {
+  public in: string;
+  public archive: string;
+  public store: string;
+  public attic: string;
+  public error: string;
 }
 
 export enum TagType {

@@ -1,30 +1,21 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Users\christian.kosmowski\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @types/saxes
+  D:\Program Files\nodejs\node.exe C:\Users\Christian\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js install
 
 PATH: 
-  C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\christian.kosmowski\bin;C:\Program Files\Docker\Docker\Resources\bin;C:\Oracle\product\11.2.0\client_1\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\iCLS;C:\Program Files\Intel\Intel(R) Management Engine Components\iCLS;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\SysWOW64\Empirum;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\TortoiseSVN\bin;C:\Program Files (x86)\PuTTY;C:\Program Files\nodejs;C:\Program Files\Git\cmd;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Users\christian.kosmowski\AppData\Local\Microsoft\WindowsApps;C:\dev\apache-maven\bin;C:\Program Files\Microsoft VS Code\bin;C:\Users\christian.kosmowski\AppData\Roaming\npm;C:\Users\christian.kosmowski\Downloads\sonar-scanner-cli-3.1.0.1141-windows\sonar-scanner-3.1.0.1141-windows\bin;C:\Oracle\instantclient-basiclite-windows.x64-11.2.0.4.0\instantclient_11_2;C:\Program Files\MongoDB\Server\3.6\bin;C:\Program Files\7-Zip;C:\Program Files (x86)\Meld;C:\Gradle\bin;C:\dev\nginx-1.15.3;C:\Users\christian.kosmowski\AppData\Local\Yarn\bin;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon
+  C:\WinAVR-20100110\bin;C:\WinAVR-20100110\utils\bin;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\bin\x86;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\bin\x64;D:\Program Files (x86)\Smart Projects\IsoBuster;D:\Program Files (x86)\MiKTeX 2.9\miktex\bin\;C:\Program Files (x86)\Skype\Phone\;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Go\bin;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Program Files\Git\cmd;D:\Program Files\nodejs\;D:\Programme\KDiff3;C:\Program Files (x86)\Microsoft VS Code\bin;D:\Program Files\MongoDB\Server\3.6\bin;C:\Users\Christian\AppData\Local\Programs\Python\Python36;F:\Sonstige_Programme\bin;C:\Users\Christian\AppData\Roaming\npm;C:\Users\Christian\AppData\Local\Yarn\bin
 
 Yarn version: 
   1.9.4
 
 Node version: 
-  11.0.0
+  8.12.0
 
 Platform: 
   win32 x64
 
 Trace: 
-  Error: http://fl-git.rhenus.de:8081/repository/npm-all/@types%2fsaxes: Not found
-      at Request.params.callback [as _callback] (C:\Users\christian.kosmowski\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:64202:18)
-      at Request.self.callback (C:\Users\christian.kosmowski\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:137468:22)
-      at Request.emit (events.js:182:13)
-      at Request.<anonymous> (C:\Users\christian.kosmowski\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:138440:10)
-      at Request.emit (events.js:182:13)
-      at IncomingMessage.<anonymous> (C:\Users\christian.kosmowski\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:138362:12)
-      at Object.onceWrapper (events.js:273:13)
-      at IncomingMessage.emit (events.js:187:15)
-      at endReadableNT (_stream_readable.js:1094:12)
-      at process.internalTickCallback (internal/process/next_tick.js:72:19)
+  Error: getaddrinfo ENOTFOUND fl-git.rhenus.de fl-git.rhenus.de:8081
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:67:26)
 
 npm manifest: 
   {
@@ -51,13 +42,14 @@ npm manifest:
       "typescript": "^3.0.3"
     },
     "dependencies": {
+      "@types/adm-zip": "^0.4.31",
       "@types/chokidar": "^1.7.5",
       "@types/mkdirp": "^0.5.2",
       "@types/node": "^10.12.0",
+      "adm-zip": "^0.4.11",
       "chokidar": "^2.0.4",
       "mkdirp": "^0.5.1",
-      "saxes": "^3.1.3",
-      "saxjs": "^1.0.0"
+      "saxes": "^3.1.3"
     },
     "jest": {
       "roots": [
@@ -129,6 +121,12 @@ Lockfile:
       reflect-metadata "^0.1.12"
       tslib "^1.8.1"
   
+  "@types/adm-zip@^0.4.31":
+    version "0.4.31"
+    resolved "http://fl-git.rhenus.de:8081/repository/npm-all/@types/adm-zip/-/adm-zip-0.4.31.tgz#a3376b9fa8f4c6e9c078c176d2df2caeb7939de3"
+    dependencies:
+      "@types/node" "*"
+  
   "@types/chokidar@^1.7.5":
     version "1.7.5"
     resolved "http://fl-git.rhenus.de:8081/repository/npm-all/@types/chokidar/-/chokidar-1.7.5.tgz#1fa78c8803e035bed6d98e6949e514b133b0c9b6"
@@ -180,6 +178,10 @@ Lockfile:
   acorn@^6.0.1:
     version "6.0.2"
     resolved "http://fl-git.rhenus.de:8081/repository/npm-all/acorn/-/acorn-6.0.2.tgz#6a459041c320ab17592c6317abbfdf4bbaa98ca4"
+  
+  adm-zip@^0.4.11:
+    version "0.4.11"
+    resolved "http://fl-git.rhenus.de:8081/repository/npm-all/adm-zip/-/adm-zip-0.4.11.tgz#2aa54c84c4b01a9d0fb89bb11982a51f13e3d62a"
   
   ajv@^5.3.0:
     version "5.5.2"
@@ -2831,10 +2833,6 @@ Lockfile:
     resolved "http://fl-git.rhenus.de:8081/repository/npm-all/saxes/-/saxes-3.1.3.tgz#334ab3b802a465ccda96fff9bdefbd505546ffa8"
     dependencies:
       xmlchars "^1.3.1"
-  
-  saxjs@^1.0.0:
-    version "1.0.0"
-    resolved "http://fl-git.rhenus.de:8081/repository/npm-all/saxjs/-/saxjs-1.0.0.tgz#bfa18bfb2f68bf5c3d449bab1d00ce8f39fff3b4"
   
   "semver@2 || 3 || 4 || 5", semver@^5.3.0, semver@^5.5, semver@^5.5.0:
     version "5.6.0"
