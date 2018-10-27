@@ -1,4 +1,5 @@
 export default class ArlinktonConfig {
+  public debug: boolean;
   public accept: string;
   public tags: [Tag];
   public paths: Paths;

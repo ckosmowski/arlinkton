@@ -8,6 +8,7 @@ import * as commander from 'commander';
 commander.option('-d --debug', 'Enable debug mode')
   .option('-c --config', 'Path to config')
   .option('-s --start', 'Start the archive service')
+  .option('-r --run', 'Run the archiving once')
   .parse(process.argv);
 
 let configFile = path.resolve("arlinkton.json");
@@ -16,6 +17,7 @@ if (commander.config) {
 }
 
 const config = {
+  debug: commander.debug,
   paths: {
     archive: path.resolve("archive"),
     attic: path.resolve("attic"),
@@ -46,5 +48,10 @@ let archiveProcess;
 if (commander.start) {
   archiveProcess = new ArchiveProcess(config);
   archiveProcess.start();
+}
+
+if (commander.run) {
+  archiveProcess = new ArchiveProcess(config);
+  archiveProcess.start(false);
 }
 //new Shelf(archiveProcess).mothball();

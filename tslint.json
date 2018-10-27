@@ -18,6 +18,8 @@
     "no-var-requires": false,
     "trailing-comma": false,
     "max-classes-per-file": false,
-    "function-name": false
+    "function-name": false,
+    "object-shorthand-properties-first": false,
+    "align": false
   }
 }

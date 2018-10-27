@@ -14,6 +14,11 @@ export default class ArchiveProcess {
   private acceptRegex: RegExp;
   private watcher: chokidar.FSWatcher;
 
+  private tagHandlers = {
+    filename: this.handleFilenameTags.bind(this),
+    xml: this.handleXMLTags.bind(this)
+  };
+
   constructor(private config: ArlinktonConfig) {
     this.storePath = config.paths.store;
     this.archivePath = config.paths.archive;
@@ -29,20 +34,17 @@ export default class ArchiveProcess {
     this.watcher.close();
   }
 
-  public start() {
-    this.watcher = this.createWatcher();
-    // Something to use when events are received.
+  public start(persistent?: boolean) {
+    this.watcher = this.createWatcher(persistent);
     const log = console.log.bind(console);
-// Add event listeners.
     this.watcher.on('add', (p) => {
-      log(`File ${path.relative(this.inPath, p)} has been added`);
+      // log(`File ${path.relative(this.inPath, p)} has been added`);
 
       const fileName = path.relative(this.inPath, p);
       let destDir = "";
       let destPath = "";
       const parsed = path.parse(fileName);
       const relDir = parsed.dir;
-      console.log(relDir);
       let success = false;
 
       if (!this.acceptRegex.test(fileName)) {
@@ -58,30 +60,18 @@ export default class ArchiveProcess {
       fs.renameSync(p, destPath);
 
       if (success) {
-        this.config.tags.forEach((t) => {
-          if (t.filter && !new RegExp(t.filter).test(fileName)) {
-            return;
-          }
-          let baseString = "";
 
-          if (t.type === TagType.FILENAME) {
-            baseString = parsed.base;
-            this.handleTag(t, baseString, destPath);
-          }
+        const tagsByType: {[key: string]: Tag[]} = this.config.tags
+          .reduce(((previousValue, tag: Tag) => {
+            previousValue[tag.type] = previousValue[tag.type] || [];
+            previousValue[tag.type].push(tag);
+            return previousValue;
+          }), {});
 
-          if (t.type === TagType.XML) {
-            const xmlParser = new XMLParser();
-            xmlParser.parse(destPath, t.tagNames.split(";")).then((result) => {
-              Object.keys(result).forEach((key) => {
-                result[key].forEach((tagString) => {
-                  this.handleTag(t, tagString, destPath);
-                });
-              });
-            }).catch((e) => {
-              console.log(e);
-            });
-          }
-
+        Object.keys(tagsByType).forEach((key) => {
+          console.log(key);
+          const tags = tagsByType[key];
+          this.tagHandlers[key.toString().toLowerCase()](destPath, tags);
         });
       }
     })
@@ -90,22 +80,10 @@ export default class ArchiveProcess {
 
   }
 
-  private createWatcher(): chokidar.FSWatcher {
-    if (!fs.existsSync(this.inPath)) {
-      mkdirp.sync(this.inPath);
-    }
-    return chokidar.watch(this.inPath, {
-      awaitWriteFinish: true,
-      ignored: /(^|[\/\\])\../,
-      persistent: true
-    });
-  }
-
   private handleTag(t: Tag, baseString: string, destPath: string) {
     const tagRegex = new RegExp(t.regex);
     const result = tagRegex.exec(baseString);
     const fileNameOnly = path.parse(destPath).base;
-    console.dir(result);
 
     const parts = t.path.split("/");
     const tagPath = parts.map((part) => {
@@ -120,7 +98,7 @@ export default class ArchiveProcess {
             splitResults.push(res);
           }
         } while (res);
-        console.log(splitResults);
+
         let partPath = "";
         splitResults.forEach((splitResult) => {
           const subPath = t.split[part].path.split("/")
@@ -136,12 +114,58 @@ export default class ArchiveProcess {
     const tagDir = path.resolve(this.archivePath, t.name, tagPath);
     mkdirp.sync(tagDir);
     try {
-      fs.symlinkSync(destPath, path.resolve(tagDir, fileNameOnly));
+      const tagFile = path.resolve(tagDir, fileNameOnly);
+      fs.symlinkSync(destPath, tagFile);
+      if (this.config.debug) {
+        console.log(`${path.relative(this.config.paths.store,
+          destPath)} => ${path.relative(this.archivePath, tagFile)}`);
+      }
     } catch (e) {
       if (e.code !== "EEXIST") {
         throw new Error(e);
       }
     }
-    console.log(tagPath);
+  }
+
+  private handleFilenameTags(destPath: string, tags: Tag[]) {
+    const fileName = path.parse(destPath).base;
+    tags.forEach((tag) => {
+      if (tag.filter && !new RegExp(tag.filter).test(fileName)) {
+        return;
+      }
+      this.handleTag(tag, fileName, destPath);
+    });
+  }
+
+  private handleXMLTags(destPath: string, tags: Tag[]) {
+    const fileName = path.parse(destPath).base;
+    const activeTags = tags.filter((tag) => {
+      return !tag.filter || new RegExp(tag.filter).test(fileName);
+    });
+    const tagNames = activeTags.map(tag => tag.tagNames);
+    const xmlParser = new XMLParser();
+    xmlParser.parse(destPath, tagNames).then((result) => {
+      Object.keys(result).forEach((key) => {
+        result[key].forEach((tagString) => {
+          const t = activeTags.find(tag => tag.tagNames.split(":")[1] === key);
+          if (t) {
+            this.handleTag(t, tagString, destPath);
+          }
+        });
+      });
+    }).catch((e) => {
+      console.log("Failed to parse xml: ", e);
+    });
+  }
+
+  private createWatcher(persistent: boolean = true): chokidar.FSWatcher {
+    if (!fs.existsSync(this.inPath)) {
+      mkdirp.sync(this.inPath);
+    }
+    return chokidar.watch(this.inPath, {
+      awaitWriteFinish: true,
+      ignored: /(^|[\/\\])\../,
+      persistent
+    });
   }
 }

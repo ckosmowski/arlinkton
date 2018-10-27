@@ -12,7 +12,6 @@ class SaxStream extends stream.Writable {
     this.saxesParser.close();
   }
   public _write(chunk, enc, next) {
-    console.log(chunk);
     if (chunk == null) {
       this.saxesParser.close();
     }
@@ -43,7 +42,7 @@ export default class XMLParser {
       };
 
       saxParser.onopentag = (node) => {
-        console.log(node);
+        //console.log(node);
         this.activeTag = node.name;
       };
 
@@ -51,7 +50,7 @@ export default class XMLParser {
         if (!this.activeTag) {
           return;
         }
-        console.log(node);
+        //console.log(node);
         const nodeKV = search.find(kv => kv[0] === this.activeTag);
         if (nodeKV) {
           this.result[nodeKV[1]] = this.result[nodeKV[1]] || [];
@@ -64,7 +63,6 @@ export default class XMLParser {
       };
 
       saxParser.onend = () => {
-        console.log("END");
         resolve(this.result);
       };
 // pipe is supported, and it's readable/writable
