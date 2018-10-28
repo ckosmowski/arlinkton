@@ -117,7 +117,7 @@ export default class ArchiveProcess {
         result[key].forEach((tagString) => {
           const t = tags.find(tag => tag.name === key);
           if (t) {
-            this.handleTag(t, t.split(fileName, tagString), destPath);
+            this.handleTag(t, t.split(tagString, fileName), destPath);
           }
         });
       });
