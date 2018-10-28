@@ -83,8 +83,7 @@ export default class ArchiveProcess {
   private handleTag(t: Tag, pathParts: string[], destPath: string) {
     const fileNameOnly = path.parse(destPath).base;
 
-    console.log(pathParts);
-    const tagPath = pathParts.join("/");
+    const tagPath = (pathParts instanceof Array ? pathParts : [pathParts]).join("/");
     const tagDir = path.resolve(this.archivePath, t.name, tagPath);
     mkdirp.sync(tagDir);
     try {
@@ -110,7 +109,7 @@ export default class ArchiveProcess {
 
   private handleXMLTags(destPath: string, tags: Tag[]) {
     const fileName = path.parse(destPath).base;
-    const tagNames = tags.map(tag => tag.tagName+":"+tag.name);
+    const tagNames = tags.map(tag => tag.tagName + ":" + tag.name);
     const xmlParser = new XMLParser();
     xmlParser.parse(destPath, tagNames).then((result) => {
       console.log(result);
