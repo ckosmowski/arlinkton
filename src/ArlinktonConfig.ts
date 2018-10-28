@@ -26,11 +26,8 @@ class Split {
 }
 
 export class Tag {
-  public filter: string;
   public name: string;
   public type: TagType;
-  public tagNames: string;
-  public regex: string;
-  public path: string;
-  public split: {[key: string]: Split};
+  public tagName: string;
+  public split: (fileName: string, additional?: string) => string[];
 }

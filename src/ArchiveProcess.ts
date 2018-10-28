@@ -60,11 +60,11 @@ export default class ArchiveProcess {
       fs.renameSync(p, destPath);
 
       if (success) {
-
         const tagsByType: {[key: string]: Tag[]} = this.config.tags
           .reduce(((previousValue, tag: Tag) => {
-            previousValue[tag.type] = previousValue[tag.type] || [];
-            previousValue[tag.type].push(tag);
+            const tagType = tag.type || "filename";
+            previousValue[tagType] = previousValue[tagType] || [];
+            previousValue[tagType].push(tag);
             return previousValue;
           }), {});
 
@@ -80,37 +80,11 @@ export default class ArchiveProcess {
 
   }
 
-  private handleTag(t: Tag, baseString: string, destPath: string) {
-    const tagRegex = new RegExp(t.regex);
-    const result = tagRegex.exec(baseString);
+  private handleTag(t: Tag, pathParts: string[], destPath: string) {
     const fileNameOnly = path.parse(destPath).base;
 
-    const parts = t.path.split("/");
-    const tagPath = parts.map((part) => {
-      const value = result.groups[part];
-      if (t.split && t.split[part]) {
-        const splitRegex = new RegExp(t.split[part].regex, "g");
-        const splitResults = [];
-        let res;
-        do {
-          res = splitRegex.exec(value);
-          if (res != null) {
-            splitResults.push(res);
-          }
-        } while (res);
-
-        let partPath = "";
-        splitResults.forEach((splitResult) => {
-          const subPath = t.split[part].path.split("/")
-            .map(sub => splitResult.groups[sub])
-            .join("/");
-          partPath = path.join(partPath, subPath);
-        });
-        return partPath;
-      }
-      return value;
-    }).join("/");
-
+    console.log(pathParts);
+    const tagPath = pathParts.join("/");
     const tagDir = path.resolve(this.archivePath, t.name, tagPath);
     mkdirp.sync(tagDir);
     try {
@@ -130,26 +104,21 @@ export default class ArchiveProcess {
   private handleFilenameTags(destPath: string, tags: Tag[]) {
     const fileName = path.parse(destPath).base;
     tags.forEach((tag) => {
-      if (tag.filter && !new RegExp(tag.filter).test(fileName)) {
-        return;
-      }
-      this.handleTag(tag, fileName, destPath);
+      this.handleTag(tag, tag.split(fileName), destPath);
     });
   }
 
   private handleXMLTags(destPath: string, tags: Tag[]) {
     const fileName = path.parse(destPath).base;
-    const activeTags = tags.filter((tag) => {
-      return !tag.filter || new RegExp(tag.filter).test(fileName);
-    });
-    const tagNames = activeTags.map(tag => tag.tagNames);
+    const tagNames = tags.map(tag => tag.tagName+":"+tag.name);
     const xmlParser = new XMLParser();
     xmlParser.parse(destPath, tagNames).then((result) => {
+      console.log(result);
       Object.keys(result).forEach((key) => {
         result[key].forEach((tagString) => {
-          const t = activeTags.find(tag => tag.tagNames.split(":")[1] === key);
+          const t = tags.find(tag => tag.name === key);
           if (t) {
-            this.handleTag(t, tagString, destPath);
+            this.handleTag(t, t.split(fileName, tagString), destPath);
           }
         });
       });

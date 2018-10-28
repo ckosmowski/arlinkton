@@ -11,7 +11,7 @@ commander.option('-d --debug', 'Enable debug mode')
   .option('-r --run', 'Run the archiving once')
   .parse(process.argv);
 
-let configFile = path.resolve("arlinkton.json");
+let configFile = path.resolve("arlinkton.js");
 if (commander.config) {
   configFile = path.resolve(commander.config);
 }
@@ -28,7 +28,7 @@ const config = {
 } as ArlinktonConfig;
 
 if (configFile && fs.existsSync(configFile)) {
-  console.log(`Reading config file: ${configFile}`)
+  console.log(`Reading config file: ${configFile}`);
   Object.assign(config, require(configFile));
 }
 
