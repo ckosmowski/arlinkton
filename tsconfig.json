@@ -1,6 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "downlevelIteration": true,
     "lib": [
       "es2015",
       "es2016.array.include",

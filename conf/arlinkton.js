@@ -17,19 +17,22 @@ module.exports = {
             let result = /.*_[^_]+_(?<timestamp>\d+)\..+$/.exec(fileName);
             let groups = /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2}).*/.exec(result.groups.timestamp).groups;
             return [groups.year, groups.month, groups.day];
+        },
+        query: (query) => {
+            return query.split("-");
         }
     },{
         name: "shipmentNo",
         type: "xml",
         tagName: "SHIPMENT_NO",
-        split: (fileName, tagValue) => {
+        split: (tagValue, fileName ) => {
             return tagValue.match(/\d{1,2}/g);
         }
     },{
         name: "branchNo",
         type: "xml",
         tagName: "BRANCH_NO",
-        split: (fileName, tagValue) => {
+        split: (tagValue, fileName) => {
             return tagValue;
         }
     }]

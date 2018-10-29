@@ -29,6 +29,7 @@
     "adm-zip": "^0.4.11",
     "chokidar": "^2.0.4",
     "commander": "^2.19.0",
+    "expressionify": "^0.9.3",
     "mkdirp": "^0.5.1",
     "saxes": "^3.1.3"
   },

@@ -30,4 +30,5 @@ export class Tag {
   public type: TagType;
   public tagName: string;
   public split: (fileName: string, additional?: string) => string[];
+  public query: (query: string) => string[];
 }

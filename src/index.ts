@@ -4,6 +4,7 @@ import ArchiveProcess from './ArchiveProcess';
 import ArlinktonConfig, {Tag} from './ArlinktonConfig';
 import Shelf from './Shelf';
 import * as commander from 'commander';
+import ArchiveQuery from './ArchiveQuery';
 
 commander
   .option('-d --debug', 'Enable debug mode')
@@ -11,9 +12,6 @@ commander
   .option('-s --start', 'Start the archive service')
   .option('-r --run', 'Run the archiving once')
   .option('-q --query <query>', 'Run the archiving once')
-  .action((query, cmd) => {
-    console.log(query, cmd);
-  })
   .parse(process.argv);
 
 let configFile = path.resolve("arlinkton.js");
@@ -61,15 +59,7 @@ if (commander.run) {
 }
 
 if (commander.query) {
-  const q: string[] = commander.query.split(":");
-  const queryTag: Tag = config.tags.find(tag => tag.name === q[0]);
-  const tagResult = queryTag.split(q[1]);
-  const queryArray = (tagResult instanceof Array ? tagResult : [tagResult]);
-  const tagPath = path.join(q[0], queryArray.join("/"));
-  const queryPath = path.resolve(config.paths.archive, tagPath);
-  console.log(queryPath);
-  fs.readdir(queryPath, (err, files: string[]) => {
-    console.log(files.map(f => fs.readlinkSync(path.resolve(queryPath, f))));
-  });
+  const result = new ArchiveQuery(config).execute(commander.query);
+  console.log(result);
 }
 //new Shelf(archiveProcess).mothball();

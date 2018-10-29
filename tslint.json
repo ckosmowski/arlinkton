@@ -20,6 +20,7 @@
     "max-classes-per-file": false,
     "function-name": false,
     "object-shorthand-properties-first": false,
-    "align": false
+    "align": false,
+    "no-increment-decrement": false
   }
 }

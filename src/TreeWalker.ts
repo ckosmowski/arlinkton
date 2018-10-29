@@ -6,7 +6,12 @@ export default class TreeWalker {
 
   }
 
-  public walk(callback: (filePath: string, stat: fs.Stats) => void, done: (err: any, success: boolean) => void) {
+  public walkSync(): string[] {
+    return this.diveSync(this.rootPath);
+  }
+
+  public walk(callback: (filePath: string, stat: fs.Stats) => void,
+              done: (err: any, success: boolean) => void) {
     this.dive(this.rootPath, callback, done);
   }
 
@@ -35,4 +40,19 @@ export default class TreeWalker {
     });
   }
 
+  private diveSync(dir): string[] {
+    let results = [];
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+      if (!file) return results;
+      const filePath = path.resolve(dir, file);
+      const stat = fs.statSync(filePath);
+      if (stat && stat.isDirectory()) {
+        results = results.concat(this.diveSync(filePath));
+      } else {
+        results.push(filePath);
+      }
+    });
+    return results;
+  }
 }

@@ -112,7 +112,6 @@ export default class ArchiveProcess {
     const tagNames = tags.map(tag => tag.tagName + ":" + tag.name);
     const xmlParser = new XMLParser();
     xmlParser.parse(destPath, tagNames).then((result) => {
-      console.log(result);
       Object.keys(result).forEach((key) => {
         result[key].forEach((tagString) => {
           const t = tags.find(tag => tag.name === key);
