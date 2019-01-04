@@ -20,14 +20,22 @@ export default class Shelf {
     treeWalker.walk((filePath, stat) => {
       if (stat.isSymbolicLink()) {
         const target = fs.readlinkSync(filePath);
-        console.log(filePath + ":" + stat.isSymbolicLink() + " => " + target);
-        fs.writeFileSync(filePath + "_arl.txt", path.relative(this.config.paths.store, target));
+        const relFilePath = path.relative(this.config.paths.archive, filePath);
+        const relTarget = path.relative(this.config.paths.store, target);
+        console.log(`${filePath}:${stat.isSymbolicLink()} => ${target}`);
+        zip.addFile(`archive/${relFilePath}_arl.txt`,
+          Buffer.alloc(relTarget.length, relTarget), relTarget);
+        const zipEntryName = path.join("store", path.dirname(relTarget));
+        if (!zip.getEntry(zipEntryName)) {
+          zip.addLocalFile(target, zipEntryName);
+        }
+        //fs.writeFileSync(`${filePath}_arl.txt`, path.relative(this.config.paths.store, target));
         fs.unlinkSync(filePath);
       }
     }, (err, success) => {
       console.log(err, success);
-      zip.addLocalFolder(this.config.paths.store, "store");
-      zip.addLocalFolder(this.config.paths.archive, "archive");
+      //zip.addLocalFolder(this.config.paths.store, "store");
+      //zip.addLocalFolder(this.config.paths.archive, "archive");
       zip.writeZip(path.join(this.config.paths.attic, "mothballs.zip"));
       if (cb) cb();
     });

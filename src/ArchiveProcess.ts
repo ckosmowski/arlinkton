@@ -1,9 +1,11 @@
 import * as chokidar from 'chokidar';
 import * as fs from "fs";
 import * as mkdirp from 'mkdirp';
+import * as ipc from 'node-ipc';
 import * as path from "path";
 import ArlinktonConfig, { Tag, TagType } from './ArlinktonConfig';
 import XMLParser from './XMLParser';
+import * as crypto from 'crypto';
 
 export default class ArchiveProcess {
 
@@ -34,7 +36,22 @@ export default class ArchiveProcess {
     this.watcher.close();
   }
 
-  public start(persistent?: boolean) {
+  public start(persistent: boolean = true) {
+
+    if (persistent) {
+      const processId = crypto.createHash('md5').update(this.config.paths.in).digest("hex");
+      ipc.config.id = processId;
+      ipc.config.retry = 1500;
+      ipc.config.silent = false;
+      ipc.serve(() => ipc.server.on('exit', (message) => {
+        console.log("EXIT");
+        this.watcher.close();
+        ipc.server.stop();
+        process.exit();
+      }));
+      ipc.server.start();
+    }
+
     this.watcher = this.createWatcher(persistent);
     const log = console.log.bind(console);
     this.watcher.on('add', (p) => {
@@ -46,6 +63,12 @@ export default class ArchiveProcess {
       const parsed = path.parse(fileName);
       const relDir = parsed.dir;
       let success = false;
+
+      if (fileName === "stop.txt") {
+        fs.unlinkSync(p);
+        this.watcher.close();
+        return;
+      }
 
       if (!this.acceptRegex.test(fileName)) {
         log(`Filename does not match ${fileName}`);
