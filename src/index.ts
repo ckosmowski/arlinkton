@@ -15,7 +15,9 @@ commander
   .option('-r --run', 'Run the archiving once')
   .option('-x --exit', 'Exit the archiving process')
   .option('--mothball', 'Mothball current archive state')
-  .option('-q --query <query>', 'Run the archiving once')
+  .option('-q --query <query>', 'Query the archive')
+  .option('--copy <target>', 'Copy all found files to target')
+  .option('--attic', 'Include attic into search')
   .option('-f --fork', 'Run the archiving once')
   .parse(process.argv);
 
@@ -64,7 +66,7 @@ if (commander.run) {
 }
 
 if (commander.query) {
-  const result = new ArchiveQuery(config).execute(commander.query);
+  const result = new ArchiveQuery(config, commander.attic, commander.copy).execute(commander.query);
   console.log(result);
 }
 

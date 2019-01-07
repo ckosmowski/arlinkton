@@ -3,7 +3,7 @@ module.exports = {
     tags: [{
         name: "name",
         split: (fileName) => {
-            let result = /(?<system>.*_)(?<type>[^_]+_)(?<timestamp>\d+)\..+$/.exec(fileName);
+            let result = /(?<system>.*_)(?<type>[^_]+_)(?<timestamp>\d+)\..+?$/.exec(fileName);
             let groups = result.groups;
             let tsGroups = /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2}).*/.exec(groups.timestamp).groups;
             return [groups.system, groups.type, tsGroups.year, tsGroups.month, tsGroups.day];
