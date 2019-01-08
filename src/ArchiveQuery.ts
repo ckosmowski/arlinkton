@@ -26,11 +26,64 @@ export default class ArchiveQuery {
     parseOperand: this.parseOperand.bind(this)
   });
 
-  constructor(private config: ArlinktonConfig, private attic: boolean, private target: string) {
+  constructor(private config: ArlinktonConfig, private attic: number, private target: string) {
   }
 
   public execute(query: string): string[] {
-    return this.evaluateExpression(query);
+    const finalList =  this.evaluateExpression(query);
+
+    const fileMap = finalList.reduce((map, fileName) => {
+      let key = "_default";
+      let value = fileName;
+      if (fileName.includes(":")) {
+        const parts = fileName.split(":");
+        key = parts[0];
+        value = parts[1];
+      }
+      if (!map[key]) {
+        map[key] = [];
+      }
+      map[key].push(value);
+      return map;
+    }, {});
+
+    if (this.target) {
+      console.log(`Copying found files to: ${this.target}`)
+      Object.keys(fileMap).forEach((key) => {
+        const values = fileMap[key];
+
+        if (key === "_default") {
+          console.log(`Copying ${values.length} files form archive...`)
+          values.forEach((value) => {
+            const filename = path.relative(this.config.paths.store, value);
+            const targetPath = path.join(this.target, filename);
+            try {
+              mkdirp.sync(path.dirname(targetPath));
+            } catch (e) {
+              // nothing
+            }
+            fs.copyFileSync(value, targetPath);
+          });
+        } else if (key.includes(".zip")) {
+          const zipFile = new AdmZip(`${this.config.paths.attic}/${key}`);
+          console.log(`Copying ${values.length} files from .zip file: ${key}...`);
+          values.forEach((value) => {
+            if (this.target) {
+              try {
+                mkdirp.sync(path.dirname(
+                  path.join(this.target, path.relative("store", value))));
+              } catch (e) {
+                // nothing
+              }
+              const b: Buffer = zipFile.readFile(value);
+              fs.writeFileSync(path.join(this.target, path.relative("store", value)), b);
+            }
+          });
+        }
+      });
+    }
+
+    return finalList;
   }
 
   private listOr(x: string[], y: string[]) {
@@ -58,49 +111,32 @@ export default class ArchiveQuery {
     }
     result = result.map((f) => {
       const source = fs.readlinkSync(path.resolve(queryPath, f));
-      const filename = path.relative(this.config.paths.store, source);
-      if (this.target) {
-        const targetPath = path.join(this.target, filename);
-        try {
-          mkdirp.sync(path.dirname(targetPath));
-        } catch (e) {
-          // nothing
-        }
-        fs.copyFileSync(source, targetPath);
-      }
       return source;
     });
 
     if (this.attic && fs.existsSync(atticPath)) {
-      const list = fs.readdirSync(atticPath);
-      console.log(list);
+      let list = fs.readdirSync(atticPath);
+      list.sort((a, b) => {
+        return a.split(".")[0].localeCompare(b.split(".")[0]);
+      });
+      list = list.slice(0, this.attic);
+      console.log(`Searching in archive and in the following .zip files:`);
+      list.forEach(el => console.log(path.relative(process.cwd(), path.join(atticPath, el))));
       list.forEach((filename) => {
         const zipFile = new AdmZip(`${atticPath}/${filename}`);
         const entryPath = `archive/${tagPath}`.replace(/\\/g, "/");
         const entry = zipFile.getEntries();
         entry.forEach((en) => {
-          console.log(en.entryName.replace(/\\/g, "/"));
-          console.log(entryPath);
+          // console.log(en.entryName.replace(/\\/g, "/"));
+          // console.log(entryPath);
           if (en.entryName.replace(/\\/g, "/").startsWith(entryPath)) {
             const storePath = `store/${zipFile.readAsText(en.entryName, "UTF-8")}`;
             result.push(`${filename}:${storePath}`);
-            if (this.target) {
-              try {
-                mkdirp.sync(path.dirname(
-                  path.join(this.target, path.relative("store", storePath))));
-              } catch (e) {
-                // nothing
-              }
-              console.log(storePath);
-              console.log(this.target);
-              const b: Buffer = zipFile.readFile(storePath);
-              fs.writeFileSync(path.join(this.target, path.relative("store", storePath)), b);
-            }
           }
         });
-        //console.dir(zipFile);
-        //console.log(entryPath);
-        //console.dir(entry);
+        // console.dir(zipFile);
+        // console.log(entryPath);
+        // console.dir(entry);
       });
     }
 

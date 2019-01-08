@@ -6,6 +6,7 @@ import ArchiveProcess from './ArchiveProcess';
 import ArchiveQuery from './ArchiveQuery';
 import ArlinktonConfig from './ArlinktonConfig';
 import Shelf from './Shelf';
+import chalk from "chalk";
 import * as crypto from "crypto";
 
 commander
@@ -16,9 +17,9 @@ commander
   .option('-x --exit', 'Exit the archiving process')
   .option('--mothball', 'Mothball current archive state')
   .option('-q --query <query>', 'Query the archive')
+  .option('-l --list', 'list the found files')
   .option('--copy <target>', 'Copy all found files to target')
-  .option('--attic', 'Include attic into search')
-  .option('-f --fork', 'Run the archiving once')
+  .option('-a --attic <n>', 'Include last n zip files into search')
   .parse(process.argv);
 
 let configFile = path.resolve("arlinkton.js");
@@ -67,7 +68,9 @@ if (commander.run) {
 
 if (commander.query) {
   const result = new ArchiveQuery(config, commander.attic, commander.copy).execute(commander.query);
-  console.log(result);
+  if (commander.list) {
+    result.forEach(f => console.log(chalk.green(path.relative(process.cwd(), f))));
+  }
 }
 
 if (commander.mothball) {
