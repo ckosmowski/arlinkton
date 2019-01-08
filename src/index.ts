@@ -8,6 +8,7 @@ import ArlinktonConfig from './ArlinktonConfig';
 import Shelf from './Shelf';
 import chalk from "chalk";
 import * as crypto from "crypto";
+import FileCopy from './FileCopy';
 
 commander
   .option('-d --debug', 'Enable debug mode')
@@ -67,10 +68,47 @@ if (commander.run) {
 }
 
 if (commander.query) {
-  const result = new ArchiveQuery(config, commander.attic, commander.copy).execute(commander.query);
-  if (commander.list) {
-    result.forEach(f => console.log(chalk.green(path.relative(process.cwd(), f))));
+  const result = new ArchiveQuery(config, commander.attic).execute(commander.query);
+
+  result.sort((a: string, b: string) => {
+    if (a.includes(".zip") && !b.includes(".zip")) {
+      return 1;
+    }
+
+    if (b.includes(".zip") && !a.includes(".zip")) {
+      return -1;
+    }
+
+    if (b.includes(".zip") && a.includes(".zip")) {
+      return b.localeCompare(a);
+    }
+
+    return a.localeCompare(b);
+  });
+
+  if (result.length === 0) {
+    console.log(`${chalk.red("\nCould not find any matching files.\n")}`);
+  } else {
+    console.log(`${chalk.blue("\n=> Results: \n")}`);
   }
+  if (commander.list) {
+    result.forEach((f) => {
+      const parts = f.split(":");
+      if (f.includes(":") && f.includes("\.zip")) {
+        console.log(`${chalk.yellow(parts[0])} => ${chalk.green(parts[1])}`);
+      } else {
+        console.log(chalk.green(path.relative(process.cwd(), f)));
+      }
+    });
+  }
+  console.log(chalk.green(`\nFound ${result.length} matching files.\n`));
+
+  if (commander.copy) {
+    const fileCopy = new FileCopy(config, commander.copy);
+    fileCopy.doCopy(result);
+  }
+
+  console.log("\n");
 }
 
 if (commander.mothball) {

@@ -6,8 +6,8 @@ export default class TreeWalker {
 
   }
 
-  public walkSync(): string[] {
-    return this.diveSync(this.rootPath);
+  public walkSync(recurse: boolean): string[] {
+    return this.diveSync(this.rootPath, recurse);
   }
 
   public walk(callback: (filePath: string, stat: fs.Stats) => void,
@@ -38,7 +38,7 @@ export default class TreeWalker {
     });
   }
 
-  private diveSync(dir): string[] {
+  private diveSync(dir, recurse: boolean): string[] {
     let results = [];
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
@@ -46,7 +46,9 @@ export default class TreeWalker {
       const filePath = path.resolve(dir, file);
       const stat = fs.statSync(filePath);
       if (stat && stat.isDirectory()) {
-        results = results.concat(this.diveSync(filePath));
+        if (recurse) {
+          results = results.concat(this.diveSync(filePath, recurse));
+        }
       } else {
         results.push(filePath);
       }

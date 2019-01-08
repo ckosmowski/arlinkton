@@ -6,6 +6,7 @@ import * as path from "path";
 import ArlinktonConfig, { Tag, TagType } from './ArlinktonConfig';
 import XMLParser from './XMLParser';
 import * as crypto from 'crypto';
+import chalk from 'chalk';
 
 export default class ArchiveProcess {
 
@@ -92,14 +93,15 @@ export default class ArchiveProcess {
           }), {});
 
         Object.keys(tagsByType).forEach((key) => {
-          console.log(key);
           const tags = tagsByType[key];
           this.tagHandlers[key.toString().toLowerCase()](destPath, tags);
         });
       }
-    })
-      .on('change', p => log(`File ${p} has been changed`))
-      .on('unlink', p => log(`File ${p} has been removed`));
+    });
+
+    console.log(chalk.green("=> Done"));
+      // .on('change', p => log(`File ${p} has been changed`))
+      // .on('unlink', p => log(`File ${p} has been removed`));
 
   }
 
