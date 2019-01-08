@@ -16,7 +16,8 @@ class Paths {
 export enum TagType {
   FILENAME = "filename",
   CONTENT = "content",
-  XML = "xml"
+  XML = "xml",
+  DATE = "date"
 }
 
 class Split {

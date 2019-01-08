@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import FileFilter from './FileFilter';
 
 export default class TreeWalker {
   constructor(private rootPath: string) {
 
   }
 
-  public walkSync(recurse: boolean): string[] {
-    return this.diveSync(this.rootPath, recurse);
+  public walkSync(recurse: boolean, filter?: FileFilter): string[] {
+    return this.diveSync(this.rootPath, recurse, filter);
   }
 
   public walk(callback: (filePath: string, stat: fs.Stats) => void,
@@ -38,7 +39,7 @@ export default class TreeWalker {
     });
   }
 
-  private diveSync(dir, recurse: boolean): string[] {
+  private diveSync(dir, recurse: boolean, filter?: FileFilter): string[] {
     let results = [];
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
@@ -46,11 +47,13 @@ export default class TreeWalker {
       const filePath = path.resolve(dir, file);
       const stat = fs.statSync(filePath);
       if (stat && stat.isDirectory()) {
-        if (recurse) {
+        if (recurse && (!filter || filter.acceptDir(filePath))) {
           results = results.concat(this.diveSync(filePath, recurse));
         }
       } else {
-        results.push(filePath);
+        if (!filter || filter.accept(filePath)) {
+          results.push(filePath);
+        }
       }
     });
     return results;
