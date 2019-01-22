@@ -1,14 +1,14 @@
+import chalk from "chalk";
 import * as commander from 'commander';
+import * as crypto from "crypto";
 import * as fs from 'fs';
 import * as ipc from 'node-ipc';
 import * as path from 'path';
 import ArchiveProcess from './ArchiveProcess';
 import ArchiveQuery from './ArchiveQuery';
 import ArlinktonConfig from './ArlinktonConfig';
-import Shelf from './Shelf';
-import chalk from "chalk";
-import * as crypto from "crypto";
 import FileCopy from './FileCopy';
+import Shelf from './Shelf';
 
 commander
   .option('-d --debug', 'Enable debug mode')

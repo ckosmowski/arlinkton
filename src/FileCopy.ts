@@ -1,8 +1,8 @@
-import * as path from "path";
-import * as mkdirp from 'mkdirp';
-import * as fs from "fs";
 import * as AdmZip from 'adm-zip';
 import chalk from "chalk";
+import * as fs from "fs";
+import * as mkdirp from 'mkdirp';
+import * as path from "path";
 import ArlinktonConfig from './ArlinktonConfig';
 
 export default class FileCopy {
@@ -32,7 +32,7 @@ export default class FileCopy {
         const values = fileMap[key];
 
         if (key === "_default") {
-          console.log(chalk.green(`Copying ${values.length} files form archive...`))
+          console.log(chalk.green(`Copying ${values.length} files form archive...`));
           values.forEach((value) => {
             const filename = path.relative(this.config.paths.store, value);
             const targetPath = path.join(this.target, filename);

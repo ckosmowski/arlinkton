@@ -10,12 +10,7 @@ export default class Shelf {
   }
 
   public mothball(cb?: () => void) {
-    // creating archives
     const zip = new AdmZip();
-    // add file directly
-    //var content = "inner content of the file";
-    //zip.addFile("test.txt", Buffer.alloc(content.length, content), "entry comment goes here");
-    // add local file
     const treeWalker = new TreeWalker(this.config.paths.archive);
     treeWalker.walk((filePath, stat) => {
       if (stat.isSymbolicLink()) {
@@ -26,26 +21,16 @@ export default class Shelf {
         zip.addFile(`archive/${relFilePath}_arl.txt`,
           Buffer.alloc(relTarget.length, relTarget), relTarget);
         const zipTargetName = path.join("store", path.dirname(relTarget)).replace(/\\/g, "/");
-        const zipEntryName = path.join("store", relTarget).replace(/\\/g, "/")
+        const zipEntryName = path.join("store", relTarget).replace(/\\/g, "/");
         if (!zip.getEntry(zipEntryName)) {
           zip.addLocalFile(target, zipTargetName);
         }
-        //fs.writeFileSync(`${filePath}_arl.txt`, path.relative(this.config.paths.store, target));
         fs.unlinkSync(filePath);
       }
     }, (err, success) => {
-      console.log(err, success);
-      //zip.addLocalFolder(this.config.paths.store, "store");
-      //zip.addLocalFolder(this.config.paths.archive, "archive");
-
       zip.writeZip(path.join(this.config.paths.attic, `${this.getDateString()}.zip`));
       if (cb) cb();
     });
-
-    // get everything as a buffer
-    //var willSendthis = zip.toBuffer();
-    // or write everything to disk
-
   }
 
   private getDateString() {

@@ -1,11 +1,12 @@
-import FileFilter from './FileFilter';
-import {ComparisonOperator} from './ComparisonOperator';
-import ArlinktonConfig from './ArlinktonConfig';
 import * as path from 'path';
+import ArlinktonConfig from './ArlinktonConfig';
+import { ComparisonOperator } from './ComparisonOperator';
+import FileFilter from './FileFilter';
 
 export default class DateFileFilter implements FileFilter {
 
-  public constructor(private tagName: string, private config: ArlinktonConfig, private dateArray: string[], private operator: ComparisonOperator) {
+  public constructor(private tagName: string, private config: ArlinktonConfig,
+                     private dateArray: string[], private operator: ComparisonOperator) {
   }
 
   public accept(archivePath: string): boolean {
@@ -15,9 +16,7 @@ export default class DateFileFilter implements FileFilter {
     if (compArray[0] === "..") {
       return;
     }
-    console.log(this.dateArray, compArray);
     const result = this.compare(compArray, this.dateArray);
-    console.log("Checking: " + archivePath + " => " + result);
     return result;
   }
 
@@ -27,9 +26,7 @@ export default class DateFileFilter implements FileFilter {
     if (compArray[0] === "..") {
       return;
     }
-    console.log(this.dateArray, compArray);
     const result = this.compare(compArray, this.dateArray, true);
-    console.log("Checking dir: " + archivePath + " => " + result);
     return result;
   }
 
@@ -49,7 +46,6 @@ export default class DateFileFilter implements FileFilter {
       a = this.fillDate(ar, br.length).join("-");
     }
 
-    console.log("comparing: " + a + "," + b);
     const comp = a.localeCompare(b);
     switch (this.operator) {
       case ComparisonOperator.GREATER_THAN:
@@ -76,6 +72,5 @@ export default class DateFileFilter implements FileFilter {
     }
     return result;
   }
-
 
 }

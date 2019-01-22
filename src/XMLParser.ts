@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as saxes from 'saxes';
-import { SaxesParser } from 'saxes';
 import * as stream from 'stream';
 
 class SaxStream extends stream.Writable {
-  constructor(private saxesParser: SaxesParser) {
+  constructor(private saxesParser: saxes.SaxesParser) {
     super();
   }
   public end() {
@@ -34,15 +33,11 @@ export default class XMLParser {
       const saxParser = new saxes.SaxesParser({ fileName });
 
       saxParser.onerror = (e) => {
-        // unhandled errors will throw, since this is a proper node
-        // event emitter.
         console.error("error!", e);
-        // clear the error
         reject(e);
       };
 
       saxParser.onopentag = (node) => {
-        //console.log(node);
         this.activeTag = node.name;
       };
 
@@ -50,7 +45,6 @@ export default class XMLParser {
         if (!this.activeTag) {
           return;
         }
-        //console.log(node);
         const nodeKV = search.find(kv => kv[0] === this.activeTag);
         if (nodeKV) {
           this.result[nodeKV[1]] = this.result[nodeKV[1]] || [];
@@ -65,8 +59,6 @@ export default class XMLParser {
       saxParser.onend = () => {
         resolve(this.result);
       };
-// pipe is supported, and it's readable/writable
-// same chunks coming in also go out.
 
       fs.createReadStream(fileName)
         .pipe(new SaxStream(saxParser));

@@ -1,13 +1,13 @@
+import * as AdmZip from 'adm-zip';
+import chalk from 'chalk';
 import * as exp from 'expressionify';
 import * as fs from "fs";
 import * as path from "path";
-import ArlinktonConfig, {Tag, TagType} from './ArlinktonConfig';
-import TreeWalker from './TreeWalker';
-import * as AdmZip from 'adm-zip';
-import chalk from 'chalk';
+import ArlinktonConfig, { Tag, TagType } from './ArlinktonConfig';
+import { ComparisonOperator } from './ComparisonOperator';
 import DateFileFilter from './DateFileFilter';
-import {ComparisonOperator} from './ComparisonOperator';
 import FileFilter from './FileFilter';
+import TreeWalker from './TreeWalker';
 
 export default class ArchiveQuery {
 
@@ -94,7 +94,7 @@ export default class ArchiveQuery {
     const queryTag: Tag = this.config.tags.find(t => t.name === tag);
 
     const tagResult = queryTag.query ? queryTag.query(query) : queryTag.split(query);
-    const queryArray = (tagResult instanceof Array ? tagResult : [tagResult]);
+    const queryArray = tagResult;
     const tagPath = path.join(tag, queryArray.join("/"));
     let queryPath = path.resolve(this.config.paths.archive, tagPath);
     const atticPath = this.config.paths.attic;
@@ -115,12 +115,8 @@ export default class ArchiveQuery {
 
     if (fs.existsSync(queryPath)) {
       const walker = new TreeWalker(queryPath);
-      if (queryTag.type === TagType.DATE) {
-        console.log(path.resolve(this.config.paths.archive, queryTag.name));
-      }
       result = walker.walkSync(startsWith, fileFilter);
     }
-    console.log(result);
     result = result.map((f) => {
       const source = fs.readlinkSync(path.resolve(queryPath, f));
       return source;
@@ -141,8 +137,6 @@ export default class ArchiveQuery {
         const entryPath = `archive/${tagPath}`.replace(/\\/g, "/");
         const entry = zipFile.getEntries();
         entry.forEach((en) => {
-          // console.log(en.entryName.replace(/\\/g, "/"));
-          // console.log(entryPath);
           const compare = en.entryName.replace(/\\/g, "/");
           let matches: boolean = false;
           if (fileFilter) {
@@ -160,9 +154,6 @@ export default class ArchiveQuery {
             result.push(`${filename}:${storePath}`);
           }
         });
-        // console.dir(zipFile);
-        // console.log(entryPath);
-        // console.dir(entry);
       });
     }
 

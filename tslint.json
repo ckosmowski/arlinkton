@@ -21,6 +21,7 @@
     "function-name": false,
     "object-shorthand-properties-first": false,
     "align": false,
-    "no-increment-decrement": false
+    "no-increment-decrement": false,
+    "interface-name": false
   }
 }

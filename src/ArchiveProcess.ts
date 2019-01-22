@@ -1,12 +1,12 @@
+import chalk from 'chalk';
 import * as chokidar from 'chokidar';
+import * as crypto from 'crypto';
 import * as fs from "fs";
 import * as mkdirp from 'mkdirp';
 import * as ipc from 'node-ipc';
 import * as path from "path";
 import ArlinktonConfig, { Tag, TagType } from './ArlinktonConfig';
 import XMLParser from './XMLParser';
-import * as crypto from 'crypto';
-import chalk from 'chalk';
 
 export default class ArchiveProcess {
 
@@ -108,7 +108,7 @@ export default class ArchiveProcess {
   private handleTag(t: Tag, pathParts: string[], destPath: string) {
     const fileNameOnly = path.parse(destPath).base;
 
-    const tagPath = (pathParts instanceof Array ? pathParts : [pathParts]).join("/");
+    const tagPath = pathParts.join("/");
     const tagDir = path.resolve(this.archivePath, t.name, tagPath);
     mkdirp.sync(tagDir);
     try {
@@ -134,7 +134,7 @@ export default class ArchiveProcess {
 
   private handleXMLTags(destPath: string, tags: Tag[]) {
     const fileName = path.parse(destPath).base;
-    const tagNames = tags.map(tag => tag.tagName + ":" + tag.name);
+    const tagNames = tags.map(tag => `${tag.tagName}:${tag.name}`);
     const xmlParser = new XMLParser();
     xmlParser.parse(destPath, tagNames).then((result) => {
       Object.keys(result).forEach((key) => {
