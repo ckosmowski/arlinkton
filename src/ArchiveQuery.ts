@@ -7,6 +7,7 @@ import * as AdmZip from 'adm-zip';
 import chalk from 'chalk';
 import DateFileFilter from './DateFileFilter';
 import {ComparisonOperator} from './ComparisonOperator';
+import FileFilter from './FileFilter';
 
 export default class ArchiveQuery {
 
@@ -52,7 +53,7 @@ export default class ArchiveQuery {
   }
 
   public execute(query: string): string[] {
-    const finalList =  this.evaluateExpression(query);
+    const finalList = this.evaluateExpression(query);
     return finalList;
   }
 
@@ -97,6 +98,7 @@ export default class ArchiveQuery {
     const tagPath = path.join(tag, queryArray.join("/"));
     let queryPath = path.resolve(this.config.paths.archive, tagPath);
     const atticPath = this.config.paths.attic;
+    let fileFilter: FileFilter = null;
 
     if (this.config.debug) {
       console.log(chalk.blue(`\n=> Query: ${path.relative(process.cwd(), queryPath)}\n`));
@@ -106,19 +108,19 @@ export default class ArchiveQuery {
 
     if (queryTag.type === TagType.DATE) {
       queryPath = path.resolve(this.config.paths.archive, queryTag.name);
+      fileFilter = new DateFileFilter(queryTag.name,
+        this.config, queryArray, operator);
       startsWith = true;
     }
 
     if (fs.existsSync(queryPath)) {
       const walker = new TreeWalker(queryPath);
-      let fileFilter;
       if (queryTag.type === TagType.DATE) {
         console.log(path.resolve(this.config.paths.archive, queryTag.name));
-        fileFilter = new DateFileFilter(queryTag.name,
-          this.config, queryArray, operator);
       }
       result = walker.walkSync(startsWith, fileFilter);
     }
+    console.log(result);
     result = result.map((f) => {
       const source = fs.readlinkSync(path.resolve(queryPath, f));
       return source;
@@ -143,11 +145,16 @@ export default class ArchiveQuery {
           // console.log(entryPath);
           const compare = en.entryName.replace(/\\/g, "/");
           let matches: boolean = false;
-          if (startsWith) {
-            matches = compare.startsWith(`${entryPath}/`);
+          if (fileFilter) {
+            matches = fileFilter.accept(compare);
           } else {
-            matches = path.dirname(compare) === entryPath;
+            if (startsWith) {
+              matches = compare.startsWith(`${entryPath}/`);
+            } else {
+              matches = path.dirname(compare) === entryPath;
+            }
           }
+
           if (matches) {
             const storePath = `store/${zipFile.readAsText(en.entryName, "UTF-8")}`;
             result.push(`${filename}:${storePath}`);

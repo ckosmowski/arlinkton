@@ -12,8 +12,11 @@ export default class DateFileFilter implements FileFilter {
 
     const relPath = path.relative(path.join(this.config.paths.archive, this.tagName), archivePath);
     const compArray = relPath.split(/\\|\//).slice(0, 3);
+    if (compArray[0] === "..") {
+      return;
+    }
     console.log(this.dateArray, compArray);
-    const result = this.compare(compArray.join("-"), this.fillDate(this.dateArray, compArray.length).join("-"));
+    const result = this.compare(compArray, this.dateArray);
     console.log("Checking: " + archivePath + " => " + result);
     return result;
   }
@@ -21,13 +24,31 @@ export default class DateFileFilter implements FileFilter {
   public acceptDir(archivePath: string): boolean {
     const relPath = path.relative(path.join(this.config.paths.archive, this.tagName), archivePath);
     const compArray = relPath.split(/\\|\//).slice(0, 3);
+    if (compArray[0] === "..") {
+      return;
+    }
     console.log(this.dateArray, compArray);
-    const result = this.compare(compArray.join("-"), this.fillDate(this.dateArray, compArray.length).join("-"));
+    const result = this.compare(compArray, this.dateArray, true);
     console.log("Checking dir: " + archivePath + " => " + result);
     return result;
   }
 
-  public compare(a: string, b: string) {
+  public compare(ar: string[], br: string[], isDir: boolean = false) {
+
+    let a = ar.join("-");
+    let b = this.fillDate(br, ar.length).join("-");
+
+    if (this.operator === ComparisonOperator.EQUALS && isDir) {
+      if (ar.length > br.length) {
+        return true;
+      }
+    }
+
+    if ((this.operator === ComparisonOperator.EQUALS && !isDir)) {
+      b = br.join("-");
+      a = this.fillDate(ar, br.length).join("-");
+    }
+
     console.log("comparing: " + a + "," + b);
     const comp = a.localeCompare(b);
     switch (this.operator) {
