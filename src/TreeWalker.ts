@@ -48,7 +48,7 @@ export default class TreeWalker {
       const stat = fs.statSync(filePath);
       if (stat && stat.isDirectory()) {
         if (recurse && (!filter || filter.acceptDir(filePath))) {
-          results = results.concat(this.diveSync(filePath, recurse));
+          results = results.concat(this.diveSync(filePath, recurse, filter));
         }
       } else {
         if (!filter || filter.accept(filePath)) {

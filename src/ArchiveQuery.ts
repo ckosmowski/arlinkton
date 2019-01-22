@@ -11,6 +11,11 @@ import {ComparisonOperator} from './ComparisonOperator';
 export default class ArchiveQuery {
 
   private listOperators = {
+    "<": {
+      execute: this.listLessThan.bind(this),
+      priority: 3,
+      type: 'binary'
+    },
     '=': {
       execute: this.listEquals.bind(this),
       priority: 3,
@@ -71,6 +76,10 @@ export default class ArchiveQuery {
 
   private listGreaterThan(tag: string, query: string) {
     return this.getList(tag, query, ComparisonOperator.GREATER_THAN);
+  }
+
+  private listLessThan(tag: string, query: string) {
+    return this.getList(tag, query, ComparisonOperator.LESS_THAN);
   }
 
   private listStartsWith(tag: string, query: string) {
